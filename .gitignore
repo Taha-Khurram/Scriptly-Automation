@@ -1,0 +1,21 @@
+# Environment / secrets
+.env
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Reports & artifacts
+reports/
+!reports/.gitkeep
+test-results/
+playwright-report/
+*.png
+*.webm
+trace.zip
