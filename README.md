@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="../FYP-main/app/static/images/git.png" alt="Scriptly" width="260" />
+<img src="../Automation-Framework/images/git.png" alt="Scriptly" width="260" />
 
 # Scriptly — UI Test Automation Framework
 
