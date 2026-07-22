@@ -1,7 +1,5 @@
 <div align="center">
 
-![Scriptly](images/git.png)
-
 # Scriptly — UI Test Automation Framework
 
 **Test the whole platform. No credentials required. Evidence on every failure.**
