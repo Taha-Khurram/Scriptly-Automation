@@ -1,15 +1,10 @@
 # Environment / secrets
 .env
 
-# Virtual envs
-.venv/
-venv/
-env/
-
-# Python
-__pycache__/
-*.py[cod]
-.pytest_cache/
+# Node / Playwright
+node_modules/
+/playwright/.auth/
+.playwright/
 
 # Reports & artifacts
 reports/

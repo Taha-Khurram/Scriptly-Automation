@@ -1,0 +1,25 @@
+{
+  "name": "scriptly-ui-automation",
+  "version": "1.0.0",
+  "description": "Scriptly UI test-automation framework — pure Playwright + TypeScript, using the Playwright Test runner.",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:auth": "playwright test --grep @auth",
+    "test:public": "playwright test --grep @public",
+    "test:no-auth": "playwright test --project=chromium",
+    "report": "playwright show-report reports/html",
+    "codegen": "playwright codegen",
+    "install:browsers": "playwright install --with-deps"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.2",
+    "dotenv": "^16.4.7",
+    "typescript": "^5.7.2"
+  }
+}
