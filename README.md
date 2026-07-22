@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="images/git.png" alt="Scriptly" width="260" />
+![Scriptly](images/git.png)
 
 # Scriptly — UI Test Automation Framework
 
