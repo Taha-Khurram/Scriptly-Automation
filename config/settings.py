@@ -30,6 +30,13 @@ class Settings:
     default_timeout: int = int(os.getenv("DEFAULT_TIMEOUT", "30000"))
     site_slug: str = os.getenv("SITE_SLUG", "demo")
 
+    # Browser presentation knobs (headed debugging / demos).
+    browser_channel: str = os.getenv("BROWSER_CHANNEL", "")  # e.g. "chrome"; "" = bundled chromium
+    slow_mo: int = int(os.getenv("SLOW_MO", "0"))            # ms delay between actions
+    maximized: bool = _as_bool(os.getenv("MAXIMIZED"), default=False)
+    window_width: int = int(os.getenv("WINDOW_WIDTH", "1366"))
+    window_height: int = int(os.getenv("WINDOW_HEIGHT", "900"))
+
     # Tier 2 (authenticated) credentials — empty means auth tests are skipped.
     test_email: str = os.getenv("TEST_EMAIL", "")
     test_password: str = os.getenv("TEST_PASSWORD", "")

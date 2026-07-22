@@ -35,17 +35,31 @@ def app_settings():
 
 @pytest.fixture(scope="session")
 def browser_type_launch_args(browser_type_launch_args):
-    return {**browser_type_launch_args, "headless": settings.headless}
+    args = {**browser_type_launch_args, "headless": settings.headless}
+    if settings.browser_channel:
+        args["channel"] = settings.browser_channel
+    if settings.slow_mo:
+        args["slow_mo"] = settings.slow_mo
+    if settings.maximized:
+        launch_flags = list(args.get("args", []))
+        launch_flags += [f"--window-size={settings.window_width},{settings.window_height}", "--start-maximized"]
+        args["args"] = launch_flags
+    return args
 
 
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args):
-    return {
+    ctx = {
         **browser_context_args,
         "base_url": settings.base_url,
         "ignore_https_errors": True,
-        "viewport": {"width": 1366, "height": 900},
     }
+    if settings.maximized:
+        # Let the page fill the maximized window instead of a fixed viewport.
+        ctx["no_viewport"] = True
+    else:
+        ctx["viewport"] = {"width": settings.window_width, "height": settings.window_height}
+    return ctx
 
 
 @pytest.fixture(autouse=True)
