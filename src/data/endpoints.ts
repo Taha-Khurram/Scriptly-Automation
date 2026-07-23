@@ -16,12 +16,28 @@
 
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
+/**
+ * The JSON shape a successful (authenticated) read should satisfy. Every field
+ * was verified against the app's route handlers, so a backend change that drops
+ * `success` or renames a collection key will fail the corresponding smoke test.
+ */
+export interface JsonExpectation {
+  /** `body.success` must equal this (omit when the endpoint has no `success`). */
+  success?: boolean;
+  /** `body[arrayKey]` must be an array. */
+  arrayKey?: string;
+  /** `body[objectKey]` must be a non-null object. */
+  objectKey?: string;
+}
+
 export interface Endpoint {
   method: HttpMethod;
   path: string;
   feature: string;
   /** Observed status for an unauthenticated caller. */
   loggedOutStatus: number;
+  /** Expected JSON body shape for a successful authenticated read (optional). */
+  json?: JsonExpectation;
 }
 
 /** A stable, readable id for a test title. */
@@ -30,11 +46,18 @@ export const endpointId = (e: Endpoint): string => `${e.feature}:${e.method} ${e
 /** Any of these means "access was denied" for a logged-out caller. */
 export const DENIED_CODES = new Set([301, 302, 303, 401, 403, 404]);
 
-const ep = (method: HttpMethod, path: string, feature: string, loggedOutStatus: number): Endpoint => ({
+const ep = (
+  method: HttpMethod,
+  path: string,
+  feature: string,
+  loggedOutStatus: number,
+  json?: JsonExpectation,
+): Endpoint => ({
   method,
   path,
   feature,
   loggedOutStatus,
+  json,
 });
 
 // --- Authenticated dashboard PAGES (GET, render templates) -> 302 when logged out
@@ -204,24 +227,29 @@ export const ALL_PROTECTED: Endpoint[] = [
 
 /**
  * Authenticated GET endpoints that should return JSON 200 for a logged-in user.
- * Used by Tier-2 feature-API smoke tests (non-destructive reads only).
+ * Used by Tier-2 feature-API smoke tests (non-destructive reads only). The
+ * `json` expectation on each entry is verified against the route handler, so the
+ * smoke test asserts the real response *shape*, not just a 200 + content-type.
+ *
+ * Note: newsletter reads intentionally have no `success` flag — the app returns
+ * bare `{ history: [] }` / `{ drafts: [] }` / `{ subscribers, count }` bodies.
  */
 export const AUTHED_READ_APIS: Endpoint[] = [
-  ep('GET', '/api/all-blogs', 'blogs-listing', 200),
-  ep('GET', '/api/comments', 'comments', 200),
-  ep('GET', '/api/comments/stats', 'comments', 200),
-  ep('GET', '/api/activity', 'activity', 200),
-  ep('GET', '/api/activity/stats', 'activity', 200),
-  ep('GET', '/api/leads', 'leads', 200),
-  ep('GET', '/api/leads/stats', 'leads', 200),
-  ep('GET', '/api/gallery/images', 'gallery', 200),
-  ep('GET', '/api/schedule/list', 'schedule', 200),
-  ep('GET', '/api/newsletter/subscribers', 'newsletter', 200),
-  ep('GET', '/api/newsletter/history', 'newsletter', 200),
-  ep('GET', '/api/newsletter/drafts', 'newsletter', 200),
-  ep('GET', '/api/newsletter/status', 'newsletter', 200),
-  ep('GET', '/api/optimization/reports', 'optimization', 200),
-  ep('GET', '/api/seo/drafts', 'seo', 200),
+  ep('GET', '/api/all-blogs', 'blogs-listing', 200, { success: true, arrayKey: 'blogs' }),
+  ep('GET', '/api/comments', 'comments', 200, { success: true, arrayKey: 'comments' }),
+  ep('GET', '/api/comments/stats', 'comments', 200, { success: true, objectKey: 'stats' }),
+  ep('GET', '/api/activity', 'activity', 200, { success: true }),
+  ep('GET', '/api/activity/stats', 'activity', 200, { success: true, objectKey: 'stats' }),
+  ep('GET', '/api/leads', 'leads', 200, { success: true, arrayKey: 'submissions' }),
+  ep('GET', '/api/leads/stats', 'leads', 200, { success: true, objectKey: 'stats' }),
+  ep('GET', '/api/gallery/images', 'gallery', 200, { success: true }),
+  ep('GET', '/api/schedule/list', 'schedule', 200, { success: true, arrayKey: 'blogs' }),
+  ep('GET', '/api/newsletter/subscribers', 'newsletter', 200, { arrayKey: 'subscribers' }),
+  ep('GET', '/api/newsletter/history', 'newsletter', 200, { arrayKey: 'history' }),
+  ep('GET', '/api/newsletter/drafts', 'newsletter', 200, { arrayKey: 'drafts' }),
+  ep('GET', '/api/newsletter/status', 'newsletter', 200, { objectKey: 'email_service' }),
+  ep('GET', '/api/optimization/reports', 'optimization', 200, { success: true, arrayKey: 'reports' }),
+  ep('GET', '/api/seo/drafts', 'seo', 200, { success: true }),
 ];
 
 /** Intentionally public (no auth required). */

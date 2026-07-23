@@ -5,15 +5,55 @@ on:
     branches: [main, master]
     paths:
       - 'tests/**'
+      - 'src/**'
+      - 'playwright.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'eslint.config.mjs'
+      - '.github/workflows/playwright.yml'
   pull_request:
     branches: [main, master]
     paths:
       - 'tests/**'
+      - 'src/**'
+      - 'playwright.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'eslint.config.mjs'
+      - '.github/workflows/playwright.yml'
   workflow_dispatch:
 
 jobs:
+  # Fast static gate: type-check, lint, and format. Fails the build before we
+  # spend time spinning up browsers if the code doesn't compile or lint.
+  static-checks:
+    name: Type-check, lint & format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
   test:
     name: Run Playwright suite
+    needs: static-checks
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -37,6 +77,7 @@ jobs:
           # Point CI at a reachable deployment. Configure these repo secrets:
           #   BASE_URL, TEST_EMAIL, TEST_PASSWORD, SITE_SLUG
           # Auth (@auth) tests auto-skip if TEST_EMAIL / TEST_PASSWORD are unset.
+          # Paid AI (@expensive) tests stay off unless RUN_EXPENSIVE=1 is set.
           BASE_URL: ${{ secrets.BASE_URL }}
           TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}

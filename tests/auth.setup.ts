@@ -24,6 +24,18 @@ setup('authenticate', async ({ page }) => {
     return;
   }
 
+  // Explicitly maximize the real browser window right after it is initialised,
+  // so a headed demo run fills the screen regardless of --start-maximized.
+  if (config.headed && config.maximized) {
+    try {
+      const session = await page.context().newCDPSession(page);
+      const { windowId } = await session.send('Browser.getWindowForTarget');
+      await session.send('Browser.setWindowBounds', { windowId, bounds: { windowState: 'maximized' } });
+    } catch {
+      // Non-CDP browsers (e.g. Firefox/WebKit) — --start-maximized already applied.
+    }
+  }
+
   const login = new LoginPage(page);
   await login.open();
   await login.signIn(config.testEmail, config.testPassword);

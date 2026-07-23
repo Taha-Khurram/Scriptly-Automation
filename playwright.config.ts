@@ -41,10 +41,7 @@ export default defineConfig({
         ['html', { outputFolder: 'reports/html', open: 'never' }],
         ['junit', { outputFile: 'reports/junit.xml' }],
       ]
-    : [
-        ['list'],
-        ['html', { outputFolder: 'reports/html', open: 'never' }],
-      ],
+    : [['list'], ['html', { outputFolder: 'reports/html', open: 'never' }]],
 
   outputDir: 'reports/artifacts',
 
